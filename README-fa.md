@@ -105,6 +105,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
 ````
 
 
+
 # امکانات
 
 - درگاه nowpayments - zarinpal - nextpay و ارزی ریالی
