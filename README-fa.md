@@ -100,6 +100,11 @@ bash <(curl -Ls https://raw.githubusercontent.com/alireza0/x-ui/master/install.s
 ````
 bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
 ````
+<br>
+
+<hr>
+
+<br>
 
 
 
