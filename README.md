@@ -28,17 +28,6 @@ Easy to sell with <a href="https://github.com/wizwizdev/wizwizxui-timebot">wizwi
 wizwiz is a powerful and professional robot that supports several types of panels and is the best option for sale, supports most protocols and has easy installation. This robot is optimized for the dear people of Iran. It is a great alternative to selling so that you can get to work.
 </p>
 
-
-<div align=center>
-
-[![Telegram Channel](https://img.shields.io/endpoint?label=Channel&style=flat-square&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fwizwizch&color=blue)](https://telegram.dog/wizwizch)
-[![Telegram Group](https://img.shields.io/endpoint?color=neon&label=Support%20Group&style=flat-square&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fwizwizdev)](https://telegram.dog/wizwizdev)
-<img src="https://img.shields.io/github/license/wizwizdev/wizwizxui-timebot?style=flat-square" />
-<img src="https://img.shields.io/github/v/release/wizwizdev/wizwizxui-timebot.svg" />
-<!-- <img src="https://visitor-badge.glitch.me/badge?page_id=wizwizdev.wizwizdev" />
- -->
-</div>
-
 <br>
 <br>
     <a align="center">
