@@ -51,7 +51,8 @@
 - قبل از نصب حتما ip سرور را روی دامنه تنظیم کنید 
 > دستور نصب را در کنسول وارد کرده و موارد مورد نیاز را برای تکمیل نصب وارد کنید.
 ```
-bash <(curl -s https://raw.githubusercontent.com/wizwizdev/wizwizxui-timebot/main/wizwiz.sh)
+bash <(curl -s https://github.com/SamanGhn/wizwizxui-timebot/main/wizwiz.sh)
+
 ```
 - در مرحله اول «sub.domain.com» یا «domain.com» را بدون https وارد کنید
 - ایمیل را وارد کنید
@@ -73,7 +74,8 @@ bash <(curl -s https://raw.githubusercontent.com/wizwizdev/wizwizxui-timebot/mai
 
 
 ```
-bash <(curl -s https://raw.githubusercontent.com/wizwizdev/wizwizxui-timebot/main/update.sh)
+bash <(curl -s https://raw.githubusercontent.com/SamanGhn/wizwizxui-timebot/mai/update.sh)
+
 ```
 
 <br>
@@ -83,17 +85,13 @@ bash <(curl -s https://raw.githubusercontent.com/wizwizdev/wizwizxui-timebot/mai
 
 
 
-# پنل های پشتیبانی شده
-
-- (Marzban)
-````
-sudo bash -c "$(curl -sL https://github.com/Gozargah/Marzban-scripts/raw/master/marzban.sh)" @ install
+# پنل های پشتیبانی شده:
 ````
 - (Niduka Akalanka)
 ````
 bash <(curl -Ls https://raw.githubusercontent.com/NidukaAkalanka/x-ui-english/master/install.sh) 0.2.1.2
 ````
-- (Sanaei)
+- (Sanaei) [Version 2.2.6]
 ````
 bash <(curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh) v1.7.9
 ````
@@ -105,25 +103,6 @@ bash <(curl -Ls https://raw.githubusercontent.com/alireza0/x-ui/master/install.s
 ````
 bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
 ````
-
-
-
-<br>
-<hr>
-<br>
-
-
-# حمایت
-
-- Tron (TRX): `TY8j7of18gbMtneB8bbL7SZk5gcntQEemG`
-- Bitcoin: `bc1qcnkjnqvs7kyxvlfrns8t4ely7x85dhvz5gqge4`
-- Dogecoin: `DMyGMghEh4W55P3VeVHntCN3vYAFtshvVH`
-
-
-
-<br>
-<hr>
-<br>
 
 
 # امکانات
@@ -182,23 +161,3 @@ bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
 - امکان دریافت جزئیات لینک
 - قابلیت خاموش/روشن (همه ویژگی های ربات)
 - اطلاع رسانی اطلاعات خرید + تمدید و ... به صورت کامل به ربات ادمین
-
-
-
-<br>
-<hr>
-<br>
-
-
-حتما به گروه و کانال بپیوندید و از ما حمایت کنید
-
-## Contact Developer
-💎 Group: https://t.me/wizwizdev
-💎 Channel: https://t.me/wizwizch
-
-<br>
-<br>
-
-## Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/wizwizdev/wizwizxui-timebot.svg)](https://starchart.cc/wizwizdev/wizwizxui-timebot)
