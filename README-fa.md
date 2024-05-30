@@ -50,7 +50,9 @@
 - یک ربات در @botfather ایجاد کنید و آن را استارت کنید
 - قبل از نصب حتما ip سرور را روی دامنه تنظیم کنید 
 > دستور نصب را در کنسول وارد کرده و موارد مورد نیاز را برای تکمیل نصب وارد کنید.
-```bash <(curl -s https://github.com/SamanGhn/wizwizxui-timebot/main/wizwiz.sh)```
+```
+bash <(curl -s https://github.com/SamanGhn/wizwizxui-timebot/main/wizwiz.sh)
+```
 - در مرحله اول «sub.domain.com» یا «domain.com» را بدون https وارد کنید
 - ایمیل را وارد کنید
 - کلمه y را وارد کنید
@@ -70,7 +72,9 @@
 - با هر به روز رسانی و بک آپ، یک اعلان برای ربات مدیر ارسال می شود
 
 
-```bash <(curl -s https://raw.githubusercontent.com/SamanGhn/wizwizxui-timebot/mai/update.sh)```
+```
+bash <(curl -s https://raw.githubusercontent.com/SamanGhn/wizwizxui-timebot/mai/update.sh)
+```
 
 <br>
 <hr>
