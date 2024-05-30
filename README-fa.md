@@ -50,9 +50,7 @@
 - یک ربات در @botfather ایجاد کنید و آن را استارت کنید
 - قبل از نصب حتما ip سرور را روی دامنه تنظیم کنید 
 > دستور نصب را در کنسول وارد کرده و موارد مورد نیاز را برای تکمیل نصب وارد کنید.
-```
-bash <(curl -s https://github.com/SamanGhn/wizwizxui-timebot/main/wizwiz.sh)
-
+```bash <(curl -s https://github.com/SamanGhn/wizwizxui-timebot/main/wizwiz.sh)
 ```
 - در مرحله اول «sub.domain.com» یا «domain.com» را بدون https وارد کنید
 - ایمیل را وارد کنید
@@ -73,9 +71,7 @@ bash <(curl -s https://github.com/SamanGhn/wizwizxui-timebot/main/wizwiz.sh)
 - با هر به روز رسانی و بک آپ، یک اعلان برای ربات مدیر ارسال می شود
 
 
-```
-bash <(curl -s https://raw.githubusercontent.com/SamanGhn/wizwizxui-timebot/mai/update.sh)
-
+```bash <(curl -s https://raw.githubusercontent.com/SamanGhn/wizwizxui-timebot/mai/update.sh)
 ```
 
 <br>
@@ -86,15 +82,15 @@ bash <(curl -s https://raw.githubusercontent.com/SamanGhn/wizwizxui-timebot/mai/
 
 
 # پنل های پشتیبانی شده:
-````
-- (Niduka Akalanka)
-````
-bash <(curl -Ls https://raw.githubusercontent.com/NidukaAkalanka/x-ui-english/master/install.sh) 0.2.1.2
+````- (Niduka Akalanka)
+
+````bash <(curl -Ls https://raw.githubusercontent.com/NidukaAkalanka/x-ui-english/master/install.sh) 0.2.1.2
+
 ````
 - (Sanaei) [Version 2.2.6]
-````
-bash <(curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh) v1.7.9
-````
+
+````bash <(curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh) v1.7.9````
+
 - (Alireza)
 ````
 bash <(curl -Ls https://raw.githubusercontent.com/alireza0/x-ui/master/install.sh) 1.5.5
