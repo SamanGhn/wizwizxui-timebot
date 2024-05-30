@@ -21,7 +21,7 @@
 <h1 align="center">Welcome to <b>WizWiz</b> (Edition)</h1>
 
 <p align="center">
-Easy to sell with <a href="https://github.com/wizwizdev/wizwizxui-timebot">wizwizxui-timebot</a> easy install with few clicks
+Easy to sell with WizWiz easy install with few clicks
 </p>
 
 <p align="center">
