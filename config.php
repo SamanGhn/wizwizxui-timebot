@@ -171,6 +171,7 @@ if(isset($update->callback_query)){
     $first_name = htmlspecialchars($update->callback_query->from->first_name);
     $markup = json_decode(json_encode($update->callback_query->message->reply_markup->inline_keyboard),true);
 }
+if($from_id < 0) exit();
 $stmt = $connection->prepare("SELECT * FROM `users` WHERE `userid`=?");
 $stmt->bind_param("i", $from_id);
 $stmt->execute();
@@ -800,6 +801,35 @@ function getCategoriesKeys($offset = 0){
     $keys[] = [['text' => $buttonValues['back_button'], 'callback_data' => "managePanel"]];
     return json_encode(['inline_keyboard'=>$keys]);
 }
+function AdminsGP_id(){
+    global $connection, $mainValues, $buttonValues;
+    $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'BOT_STATES'");
+    $stmt->execute();
+    $BOT_STATES = $stmt->get_result()->fetch_assoc()['value'];
+    if(!is_null($BOT_STATES)) $BOT_STATES = json_decode($BOT_STATES,true);
+    else $BOT_STATES = array();
+    $stmt->close();
+
+	return $BOT_STATES['AdminsGP'];
+}
+
+
+function select_card_number_random(){
+    global $connection, $mainValues, $buttonValues;
+    $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'PAYMENT_KEYS'");
+    $stmt->execute();
+    $paymentKeys = $stmt->get_result()->fetch_assoc()['value'];
+    if(!is_null($paymentKeys)) $paymentKeys = json_decode($paymentKeys,true);
+    else $paymentKeys = array();
+    $stmt->close();
+	$rands=[];
+	if (!empty($paymentKeys['bankAccount1'])) array_push($rands,"1");
+	if (!empty($paymentKeys['bankAccount2'])) array_push($rands,"2");
+	if (!empty($paymentKeys['bankAccount3'])) array_push($rands,"3");
+	if (!empty($paymentKeys['bankAccount4'])) array_push($rands,"4");
+	return $rands[rand(0,count($rands)-1)];
+}
+
 function getGateWaysKeys(){
     global $connection, $mainValues, $buttonValues;
     
@@ -822,6 +852,8 @@ function getGateWaysKeys(){
     $nextpay = $botState['nextpay']=="on"?$buttonValues['on']:$buttonValues['off'];
     $rewaredChannel = $botState['rewardChannel']??" ";
     $lockChannel = $botState['lockChannel']??" ";
+    $AdminsGP = $botState['AdminsGP']??" ";
+    $AdminsGPTitle = $botState['AdminsGPTitle']??" ";
 
     $stmt = $connection->prepare("SELECT * FROM `setting` WHERE `type` = 'PAYMENT_KEYS'");
     $stmt->execute();
@@ -831,13 +863,38 @@ function getGateWaysKeys(){
     $stmt->close();
     return json_encode(['inline_keyboard'=>[
         [
-            ['text'=>(!empty($paymentKeys['bankAccount'])?$paymentKeys['bankAccount']:" "),'callback_data'=>"changePaymentKeysbankAccount"],
-            ['text'=>"شماره حساب",'callback_data'=>"wizwizch"]
+            ['text'=>(!empty($paymentKeys['bankAccount1'])?$paymentKeys['bankAccount1']:" "),'callback_data'=>"changePaymentKeysbankAccount1"],
+            ['text'=>"شماره حساب 1",'callback_data'=>"wizwizch"]
+        ],	
+        [
+            ['text'=>(!empty($paymentKeys['holderName1'])?$paymentKeys['holderName1']:" "),'callback_data'=>"changePaymentKeysholderName1"],
+            ['text'=>"دارنده حساب 1",'callback_data'=>"wizwizch"]
         ],
         [
-            ['text'=>(!empty($paymentKeys['holderName'])?$paymentKeys['holderName']:" "),'callback_data'=>"changePaymentKeysholderName"],
-            ['text'=>"دارنده حساب",'callback_data'=>"wizwizch"]
+            ['text'=>(!empty($paymentKeys['bankAccount2'])?$paymentKeys['bankAccount2']:" "),'callback_data'=>"changePaymentKeysbankAccount2"],
+            ['text'=>"شماره حساب 2",'callback_data'=>"wizwizch"]
+        ],	
+        [
+            ['text'=>(!empty($paymentKeys['holderName2'])?$paymentKeys['holderName2']:" "),'callback_data'=>"changePaymentKeysholderName2"],
+            ['text'=>"دارنده حساب 2",'callback_data'=>"wizwizch"]
         ],
+        [
+            ['text'=>(!empty($paymentKeys['bankAccount3'])?$paymentKeys['bankAccount3']:" "),'callback_data'=>"changePaymentKeysbankAccount3"],
+            ['text'=>"شماره حساب 3",'callback_data'=>"wizwizch"]
+        ],	
+        [
+            ['text'=>(!empty($paymentKeys['holderName3'])?$paymentKeys['holderName3']:" "),'callback_data'=>"changePaymentKeysholderName3"],
+            ['text'=>"دارنده حساب 3",'callback_data'=>"wizwizch"]
+        ],
+        [
+            ['text'=>(!empty($paymentKeys['bankAccount4'])?$paymentKeys['bankAccount4']:" "),'callback_data'=>"changePaymentKeysbankAccount4"],
+            ['text'=>"شماره حساب 4",'callback_data'=>"wizwizch"]
+        ],	
+        [
+            ['text'=>(!empty($paymentKeys['holderName4'])?$paymentKeys['holderName4']:" "),'callback_data'=>"changePaymentKeysholderName4"],
+            ['text'=>"دارنده حساب 4",'callback_data'=>"wizwizch"]
+        ],
+
         [
             ['text'=>(!empty($paymentKeys['nowpayment'])?$paymentKeys['nowpayment']:" "),'callback_data'=>"changePaymentKeysnowpayment"],
             ['text'=>"کد درگاه nowPayment",'callback_data'=>"wizwizch"]
@@ -893,7 +950,12 @@ function getGateWaysKeys(){
         [
             ['text'=>$lockChannel,'callback_data'=>'editLockChannel'],
             ['text'=>"کانال قفل",'callback_data'=>'wizwizch']
-            ],
+		],
+        [
+            ['text'=>"$AdminsGPTitle | $AdminsGP",'callback_data'=>'editAdminsGP'],
+            ['text'=>"گروه تایید ادمین ها",'callback_data'=>'wizwizch']
+		],
+			
         [['text'=>$buttonValues['back_button'],'callback_data'=>"managePanel"]]
         ]]);
 
