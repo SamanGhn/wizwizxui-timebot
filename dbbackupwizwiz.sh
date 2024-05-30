@@ -17,5 +17,3 @@ mysqldump -u$databaseUser -p$databasePassword $databaseName > $backupDir/$backup
 telegramAPI="https://api.telegram.org/bot$telegramBotToken/sendDocument"
 curl -F "chat_id=$chatID" -F "document=@$backupDir/$backupFilename" "$telegramAPI"
 rm "$backupDir/$backupFilename"
-
-
