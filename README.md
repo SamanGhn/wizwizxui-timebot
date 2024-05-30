@@ -150,3 +150,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
 - Ability to get link details
 - Off/on capability (all robot features)
 - Notification of purchase information + renewal etc. in full to the admin robot
+
+# Dedicated features
+
+- Card to card
