@@ -2,7 +2,6 @@
 include_once "settings/values.php";
 include_once 'settings/jdf.php';
 include_once 'baseInfo.php';
-
 $connection = new mysqli('localhost',$dbUserName,$dbPassword,$dbName);
 if($connection->connect_error){
     exit("error " . $connection->connect_error);  
@@ -172,7 +171,6 @@ if(isset($update->callback_query)){
     $first_name = htmlspecialchars($update->callback_query->from->first_name);
     $markup = json_decode(json_encode($update->callback_query->message->reply_markup->inline_keyboard),true);
 }
-if($from_id < 0) exit();
 $stmt = $connection->prepare("SELECT * FROM `users` WHERE `userid`=?");
 $stmt->bind_param("i", $from_id);
 $stmt->execute();
@@ -632,11 +630,8 @@ function getServerConfigKeys($serverId,$offset = 0){
         case "normal":
             $serverType = "ساده";
             break;
-        case "marzban":
-            $serverType = "مرزبان";
-            break;
     }
-    return json_encode(['inline_keyboard'=>array_merge([
+    return json_encode(['inline_keyboard'=>[
         [
             ['text'=>$panelUrl,'callback_data'=>"wizwizch"],
             ],
@@ -657,14 +652,12 @@ function getServerConfigKeys($serverId,$offset = 0){
             ['text'=>"نوعیت سرور",'callback_data'=>"wizwizch"]
             ],
         [
-            ['text'=>$ucount,'callback_data'=>"editServerMax$id"],
-            ['text'=>"ظرفیت سرور",'callback_data'=>"wizwizch"]
-            ]
-            ],
-            ($serverConfig['type'] != "marzban"?[
-        [
             ['text'=>$portType,'callback_data'=>"changePortType$id"],
             ['text'=>"نوعیت پورت",'callback_data'=>"wizwizch"]
+            ],
+        [
+            ['text'=>$ucount,'callback_data'=>"editServerMax$id"],
+            ['text'=>"ظرفیت سرور",'callback_data'=>"wizwizch"]
             ],
         [
             ['text'=>$sni,'callback_data'=>"editsServersni$id"],
@@ -696,8 +689,7 @@ function getServerConfigKeys($serverId,$offset = 0){
             ],
         [
             ['text'=>"♻️ تغییر security setting",'callback_data'=>"editsServertlsSettings$id"],
-            ]
-            ]:[]),[
+            ],
         [
             ['text'=>"🔅تغییر اطلاعات ورود",'callback_data'=>"changesServerLoginInfo$id"],
             ],
@@ -705,7 +697,7 @@ function getServerConfigKeys($serverId,$offset = 0){
             ['text'=>"✂️ حذف سرور",'callback_data'=>"wizwizdeleteserver$id"],
             ],
         [['text' => $buttonValues['back_button'], 'callback_data' => "nextServerPage" . $offset]]
-        ])]);
+        ]]);
 }
 function getServerListKeys($offset = 0){
     global $connection, $mainValues, $buttonValues;
@@ -748,9 +740,6 @@ function getServerListKeys($offset = 0){
                 case "normal":
                     $serverType = "ساده";
                     break;
-                case "marzban":
-                    $serverType = "مرزبان";
-                    break;
             }
             $keys[] = [['text'=>$state,'callback_data'=>'toggleServerState' . $id . "_" . $offset],['text'=>"⚙️",'callback_data'=>"showServerSettings" . $id . "_" . $offset],['text'=>$serverType??" ",'callback_data'=>"wizwizch"],['text'=>$cname,'callback_data'=>"wizwizch"]];
         } 
@@ -767,10 +756,7 @@ function getServerListKeys($offset = 0){
     elseif($offset != 0){
         $keys[] = [['text'=>" «« صفحه قبلی ««",'callback_data'=>"nextServerPage" . ($offset - $limit)]];
     }
-    $keys[] = [
-        ['text'=>'➕ ثبت سرور xui','callback_data'=>"addNewServer"],
-        ['text'=>"➕ ثبت سرور مرزبان",'callback_data'=>"addNewMarzbanPanel"]
-        ];
+    $keys[] = [['text'=>'🪙 ثبت سرور جدید','callback_data'=>"addNewServer"]];
     $keys[] = [['text' => $buttonValues['back_button'], 'callback_data' => "managePanel"]];
     return json_encode(['inline_keyboard'=>$keys]);
 }
@@ -1361,7 +1347,6 @@ function getPlanDetailsKeys($planId){
             [['text'=>"✏️ ویرایش توضیحات",'callback_data'=>"wizwizplaneditdes$id"]],
             [['text'=>number_format($price) . " تومان",'callback_data'=>"wizwizplanrial$id"],['text'=>"💰 قیمت پلن",'callback_data'=>"wizwizch"]],
             [['text'=>"♻️ دریافت لیست اکانت ها",'callback_data'=>"wizwizplanacclist$id"]],
-            ($server_info['type'] == "marzban"?[['text'=>"انتخاب Host",'callback_data'=>"marzbanHostSettings" . $id]]:[]),
             [['text'=>"✂️ حذف",'callback_data'=>"wizwizplandelete$id"]],
             [['text' => $buttonValues['back_button'], 'callback_data' =>"plansList$srvid"]]
             ];
@@ -1422,62 +1407,45 @@ function getUserOrderDetailKeys($id){
         $link_status = $order['expire_date'] > time()  ? $buttonValues['active'] : $buttonValues['deactive'];
         $price = $order['amount'];
         
-    	$stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id` = ?");
-    	$stmt->bind_param('i', $server_id);
-    	$stmt->execute();
-    	$serverConfig = $stmt->get_result()->fetch_assoc();
-    	$stmt->close();
-    	$serverType = $serverConfig['type'];
-    	$panelUrl = $serverConfig['panel_url'];
-
-        if($serverType == "marzban"){
-            $info = getMarzbanUser($server_id, $remark);
-            $enable = $info->status =="active"?true:false;
-            $total = $info->data_limit;
-            $usedTraffic = $info->used_traffic;
-            
-            $leftgb = round( ($total - $usedTraffic) / 1073741824, 2) . " GB";
-        }else{
-            $response = getJson($server_id)->obj;
-            if($inbound_id == 0) {
-                foreach($response as $row){
-                    $clients = json_decode($row->settings)->clients;
-                    if($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
-                        $total = $row->total;
-                        $up = $row->up;
-                        $enable = $row->enable;
-                        $down = $row->down; 
-                        $netType = json_decode($row->streamSettings)->network;
-                        $security = json_decode($row->streamSettings)->security;
-                        break;
-                    }
+        $response = getJson($server_id)->obj;
+        if($inbound_id == 0) {
+            foreach($response as $row){
+                $clients = json_decode($row->settings)->clients;
+                if($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
+                    $total = $row->total;
+                    $up = $row->up;
+                    $enable = $row->enable;
+                    $down = $row->down; 
+                    $netType = json_decode($row->streamSettings)->network;
+                    $security = json_decode($row->streamSettings)->security;
+                    break;
                 }
-            }else {
-                foreach($response as $row){
-                    if($row->id == $inbound_id) {
-                        $netType = json_decode($row->streamSettings)->network;
-                        $security = json_decode($row->streamSettings)->security;
-                        $clientsStates = $row->clientStats;
-                        $clients = json_decode($row->settings)->clients;
-                        foreach($clients as $key => $client){
-                            if($client->id == $uuid || $client->password == $uuid){
-                                $email = $client->email;
-                                $emails = array_column($clientsStates,'email');
-                                $emailKey = array_search($email,$emails);
-                                
-                                $total = $clientsStates[$emailKey]->total;
-                                $up = $clientsStates[$emailKey]->up;
-                                $enable = $clientsStates[$emailKey]->enable;
-                                if(!$client->enable) $enable = false;
-                                $down = $clientsStates[$emailKey]->down; 
-                                break;
-                            }
+            }
+        }else {
+            foreach($response as $row){
+                if($row->id == $inbound_id) {
+                    $netType = json_decode($row->streamSettings)->network;
+                    $security = json_decode($row->streamSettings)->security;
+                    $clientsStates = $row->clientStats;
+                    $clients = json_decode($row->settings)->clients;
+                    foreach($clients as $key => $client){
+                        if($client->id == $uuid || $client->password == $uuid){
+                            $email = $client->email;
+                            $emails = array_column($clientsStates,'email');
+                            $emailKey = array_search($email,$emails);
+                            
+                            $total = $clientsStates[$emailKey]->total;
+                            $up = $clientsStates[$emailKey]->up;
+                            $enable = $clientsStates[$emailKey]->enable;
+                            if(!$client->enable) $enable = false;
+                            $down = $clientsStates[$emailKey]->down; 
+                            break;
                         }
                     }
                 }
             }
-            $leftgb = round( ($total - $up - $down) / 1073741824, 2) . " GB";
         }
+        $leftgb = round( ($total - $up - $down) / 1073741824, 2) . " GB";
         $configLinks = "";
         foreach($acc_link as $acc_link){
             $configLinks .= $botState['configLinkState'] != "off"?"\n <code>$acc_link</code>":"";
@@ -1767,8 +1735,7 @@ function getUserOrderDetailKeys($id){
         $server_info = $stmt->get_result()->fetch_assoc();
         $stmt->close();
         
-        if($serverType == "marzban") $subLink = $botState['subLinkState'] == "on"?"<code>" . $panelUrl . "/sub/" . $token . "</code>":"";
-        else $subLink = $botState['subLinkState']=="on"?"<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>":"";
+        $subLink = $botState['subLinkState']=="on"?"<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>":"";
 
         
         $enable = $enable == true? $buttonValues['active']:$buttonValues['deactive'];
@@ -1832,85 +1799,68 @@ function getOrderDetailKeys($from_id, $id){
         $link_status = $order['expire_date'] > time()  ? $buttonValues['active'] : $buttonValues['deactive'];
         $price = $order['amount'];
         
-    	$stmt = $connection->prepare("SELECT * FROM `server_config` WHERE `id` = ?");
-    	$stmt->bind_param('i', $server_id);
-    	$stmt->execute();
-    	$serverConfig = $stmt->get_result()->fetch_assoc();
-    	$stmt->close();
-    	$serverType = $serverConfig['type'];
-        $panel_url = $serverConfig['panel_url'];
-        
-        if($serverType == "marzban"){
-            $info = getMarzbanUser($server_id, $remark);
-            $enable = $info->status =="active"?true:false;
-            $total = $info->data_limit;
-            $usedTraffic = $info->used_traffic;
-            
-            $leftgb = round( ($total - $usedTraffic) / 1073741824, 2) . " GB";
-        }else{
-            $response = getJson($server_id)->obj;
-            if($response){
-                if($inbound_id == 0) {
-                    foreach($response as $row){
-                        $clients = json_decode($row->settings)->clients;
-                        if($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
-                            $total = $row->total;
-                            $up = $row->up;
-                            $down = $row->down; 
-                            $enable = $row->enable;
-                            $expiryTime = $row->expiryTime;
+        $response = getJson($server_id)->obj;
+        if($response){
+            if($inbound_id == 0) {
+                foreach($response as $row){
+                    $clients = json_decode($row->settings)->clients;
+                    if($clients[0]->id == $uuid || $clients[0]->password == $uuid) {
+                        $total = $row->total;
+                        $up = $row->up;
+                        $down = $row->down; 
+                        $enable = $row->enable;
+                        $expiryTime = $row->expiryTime;
+                        
+                        $netType = json_decode($row->streamSettings)->network;
+                        $security = json_decode($row->streamSettings)->security;
+                        
+                        $clientsStates = $row->clientStats;
+                        
+                        $inboundEmail = $clients[0]->email;
+                        $allEmails = array_column($clientsStates,'email');
+                        $clienEmailKey = array_search($inboundEmail,$allEmails);
+
+                        $clientTotal = $clientsStates[$clienEmailKey]->total;
+                        $clientUp = $clientsStates[$clienEmailKey]->up;
+                        $clientDown = $clientsStates[$clienEmailKey]->down;
+                        $clientExpiryTime = $clientsStates[$clienEmailKey]->expiryTime;
                             
-                            $netType = json_decode($row->streamSettings)->network;
-                            $security = json_decode($row->streamSettings)->security;
-                            
-                            $clientsStates = $row->clientStats;
-                            
-                            $inboundEmail = $clients[0]->email;
-                            $allEmails = array_column($clientsStates,'email');
-                            $clienEmailKey = array_search($inboundEmail,$allEmails);
-    
-                            $clientTotal = $clientsStates[$clienEmailKey]->total;
-                            $clientUp = $clientsStates[$clienEmailKey]->up;
-                            $clientDown = $clientsStates[$clienEmailKey]->down;
-                            $clientExpiryTime = $clientsStates[$clienEmailKey]->expiryTime;
-                                
-                            if($clientTotal != 0 && $clientTotal != null && $clientExpiryTime != 0 && $clientExpiryTime != null){
-                                $up += $clientUp;
-                                $down += $clientDown;
-                                $total = $clientTotal;
-                            }
-    
-                            break;
+                        if($clientTotal != 0 && $clientTotal != null && $clientExpiryTime != 0 && $clientExpiryTime != null){
+                            $up += $clientUp;
+                            $down += $clientDown;
+                            $total = $clientTotal;
                         }
+
+                        break;
                     }
-                }else {
-                    foreach($response as $row){
-                        if($row->id == $inbound_id) {
-                            $netType = json_decode($row->streamSettings)->network;
-                            $security = json_decode($row->streamSettings)->security;
-                            
-                            $clientsStates = $row->clientStats;
-                            $clients = json_decode($row->settings)->clients;
-                            foreach($clients as $key => $client){
-                                if($client->id == $uuid || $client->password == $uuid){
-                                    $email = $client->email;
-                                    $emails = array_column($clientsStates,'email');
-                                    $emailKey = array_search($email,$emails);
-                                    
-                                    $total = $clientsStates[$emailKey]->total;
-                                    $up = $clientsStates[$emailKey]->up;
-                                    $enable = $clientsStates[$emailKey]->enable;
-                                    if(!$client->enable) $enable = false;
-                                    $down = $clientsStates[$emailKey]->down; 
-                                    break;
-                                }
+                }
+            }else {
+                foreach($response as $row){
+                    if($row->id == $inbound_id) {
+                        $netType = json_decode($row->streamSettings)->network;
+                        $security = json_decode($row->streamSettings)->security;
+                        
+                        $clientsStates = $row->clientStats;
+                        $clients = json_decode($row->settings)->clients;
+                        foreach($clients as $key => $client){
+                            if($client->id == $uuid || $client->password == $uuid){
+                                $email = $client->email;
+                                $emails = array_column($clientsStates,'email');
+                                $emailKey = array_search($email,$emails);
+                                
+                                $total = $clientsStates[$emailKey]->total;
+                                $up = $clientsStates[$emailKey]->up;
+                                $enable = $clientsStates[$emailKey]->enable;
+                                if(!$client->enable) $enable = false;
+                                $down = $clientsStates[$emailKey]->down; 
+                                break;
                             }
                         }
                     }
                 }
-                $leftgb = round( ($total - $up - $down) / 1073741824, 2) . " GB";
-            }else $leftgb = "⚠️";
-        }
+            }
+            $leftgb = round( ($total - $up - $down) / 1073741824, 2) . " GB";
+        }else $leftgb = "⚠️";
         $configLinks = "";
         foreach($acc_link as $acc_link){
             $configLinks .= ($botState['configLinkState'] != "off"?"\n <code>$acc_link</code>":"");
@@ -1936,13 +1886,13 @@ function getOrderDetailKeys($from_id, $id){
             			    ['text' => " $leftgb", 'callback_data' => "wizwizch"],
                             ['text' => $buttonValues['volume_left'], 'callback_data' => "wizwizch"],
             			],
-                        ($serverType != "marzban"?[
+                        [
                             ['text' => $buttonValues['selected_protocol'], 'callback_data' => "wizwizch"],
-                        ]:[]),
-                        ($serverType != "marzban"?[
+                        ],
+                        [
                             ['text' => $protocol == 'trojan' ? '☑️ trojan' : 'trojan', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_trojan":"changeProtocolIsDisable")],
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_vless":"changeProtocolIsDisable")],
-                        ]:[]),
+                        ],
                     ];
                     
                     $temp = array();
@@ -1969,14 +1919,14 @@ function getOrderDetailKeys($from_id, $id){
             			    ['text' => " $leftgb", 'callback_data' => "wizwizch"],
                             ['text' => $buttonValues['volume_left'], 'callback_data' => "wizwizch"],
             			],
-                        ($serverType != "marzban"?[
+                        [
                             ['text' => $buttonValues['selected_protocol'], 'callback_data' => "wizwizch"],
-                        ]:[]),
-                        ($serverType != "marzban"?[
+                        ],
+                        [
                             ['text' => $protocol == 'trojan' ? '☑️ trojan' : 'trojan', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_trojan":"changeProtocolIsDisable")],
                             ['text' => $protocol == 'vmess' ? '☑️ vmess' : 'vmess', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_vmess":"changeProtocolIsDisable")],
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_vless":"changeProtocolIsDisable")],
-                        ]:[]),
+                        ],
                     ];
                     
                     
@@ -2006,13 +1956,13 @@ function getOrderDetailKeys($from_id, $id){
             			    ['text' => " $leftgb", 'callback_data' => "wizwizch"],
                             ['text' => $buttonValues['volume_left'], 'callback_data' => "wizwizch"],
             			],
-                        ($serverType != "marzban"?[
+                        [
                             ['text' => $buttonValues['selected_protocol'], 'callback_data' => "wizwizch"],
-                        ]:[]),
-                        ($serverType != "marzban"?[
+                        ],
+                        [
                             ['text' => $protocol == 'vmess' ? '☑️ vmess' : 'vmess', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_vmess":"changeProtocolIsDisable")],
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_vless":"changeProtocolIsDisable")],
-                        ]:[])
+                        ]
                     ];
                     
                     
@@ -2041,13 +1991,13 @@ function getOrderDetailKeys($from_id, $id){
             			    ['text' => " $leftgb", 'callback_data' => "wizwizch"],
                             ['text' => $buttonValues['volume_left'], 'callback_data' => "wizwizch"],
             			],
-                        ($serverType != "marzban"?[
+                        [
                             ['text' => $buttonValues['selected_protocol'], 'callback_data' => "wizwizch"],
-                        ]:[]),
-                        ($serverType != "marzban"?[
+                        ],
+                        [
                             ['text' => $protocol == 'trojan' ? '☑️ trojan' : 'trojan', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_trojan":"changeProtocolIsDisable")],
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_vless":"changeProtocolIsDisable")],
-                        ]:[])
+                        ]
                     ];
                     
                     $temp = array();
@@ -2076,10 +2026,10 @@ function getOrderDetailKeys($from_id, $id){
             			    ['text' => " $leftgb", 'callback_data' => "wizwizch"],
                             ['text' => $buttonValues['volume_left'], 'callback_data' => "wizwizch"],
             			],
-                        ($serverType != "marzban"?[
+                        [
                             ['text' => $buttonValues['selected_protocol'], 'callback_data' => "wizwizch"],
-                        ]:[]),
-                        ($serverType != "marzban"?($rahgozar == true?
+                        ],
+                        ($rahgozar == true?
                         [
                             ['text' => $protocol == 'vmess' ? '☑️ vmess' : 'vmess', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_vmess":"changeProtocolIsDisable")],
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_vless":"changeProtocolIsDisable")],
@@ -2088,7 +2038,7 @@ function getOrderDetailKeys($from_id, $id){
                             ['text' => $protocol == 'trojan' ? '☑️ trojan' : 'trojan', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_trojan":"changeProtocolIsDisable")],
                             ['text' => $protocol == 'vmess' ? '☑️ vmess' : 'vmess', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_vmess":"changeProtocolIsDisable")],
                             ['text' => $protocol == 'vless' ? '☑️ vless' : 'vless', 'callback_data' => ($botState['changeProtocolState']=="on"?"changeAccProtocol{$fid}_{$id}_vless":"changeProtocolIsDisable")],
-                        ]):[])
+                        ])
                     ];
                     
                     $temp = array();
@@ -2118,12 +2068,12 @@ function getOrderDetailKeys($from_id, $id){
     			    ['text' => " $leftgb", 'callback_data' => "wizwizch"],
                     ['text' => $buttonValues['volume_left'], 'callback_data' => "wizwizch"],
     			],
-    			($serverType != "marzban"?[
+    			[
                     ['text' => $buttonValues['selected_protocol'], 'callback_data' => "wizwizch"],
-                ]:[]),
-                ($serverType != "marzban"?[
+                ],
+                [
                     ['text' => " $protocol ☑️", 'callback_data' => "wizwizch"],
-                ]:[])
+                ]
             ];
             
             $temp = array();
@@ -2142,8 +2092,7 @@ function getOrderDetailKeys($from_id, $id){
         $server_info = $stmt->get_result()->fetch_assoc();
         $stmt->close();
         
-        if($serverType == "marzban") $subLink = $botState['subLinkState'] == "on"?"<code>" . $panel_url . "/sub/" . $token . "</code>":"";
-        else $subLink = $botState['subLinkState']=="on"?"<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>":"";
+        $subLink = $botState['subLinkState']=="on"?"<code>" . $botUrl . "settings/subLink.php?token=" . $token . "</code>":"";
 
         $enable = $enable == true? $buttonValues['active']:$buttonValues['deactive'];
         $msg = str_replace(['STATE', 'NAME','CONNECT-LINK', 'SUB-LINK'], [$enable, $remark, $configLinks, $subLink], $mainValues['config_details_message']);
@@ -5091,443 +5040,6 @@ function editInbound($server_id, $uniqid, $uuid, $protocol, $netType = 'tcp', $s
     $response = curl_exec($curl);
     curl_close($curl);
     return $response = json_decode($response);
-}
-function getMarzbanToken($server_id){
-    global $connection;
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id = ?");
-    $stmt->bind_param('i', $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-    
-    $panel_url = $server_info['panel_url'];
-    $username = $server_info['username'];
-    $password = $server_info['password'];
-    
-    $loginUrl = $panel_url .'/api/admin/token';
-    $postFields = array(
-        'username' => $username,
-        'password' => $password
-    );
-    
-    
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $loginUrl);
-    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_POST, 1);
-    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_setopt($curl, CURLOPT_TIMEOUT, 3); 
-    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postFields));
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/x-www-form-urlencoded',
-            'accept: application/json'
-        ));
-    $response = curl_exec($curl);
-    if (curl_error($curl)) {
-        return (object) ['success'=>false, 'detail'=>curl_error($curl)];
-    }
-    curl_close($curl);
-
-    return json_decode($response);
-}
-function getMarzbanJson($server_id, $token = null){
-    global $connection;
-    
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $panel_url = $server_info['panel_url'];
-
-    if($token == null) $token = getMarzbanToken($server_id);
-    if(isset($token->detail)){return (object) ['success'=>false, 'msg'=>$token->detail];}
-    $panel_url .= '/api/users';
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $panel_url);
-    curl_setopt($curl, CURLOPT_HTTPGET, true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Accept: application/json',
-        'Authorization: Bearer ' . $token->access_token
-    ));
-
-    $response = json_decode(curl_exec($curl));
-    curl_close($curl);
-
-    return $response;
-}
-function getMarzbanUserInfo($server_id, $remark){
-    global $connection;
-    
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $panel_url = $server_info['panel_url'];
-
-    $configInfo = array();
-    $curl = curl_init();
-    for($i = 0; $i <= 10; $i++){
-        $info = getMarzbanUser($server_id, $remark);
-		$subLink = "/sub/" . (explode("/sub/", $info->subscription_url)[1]);
-		$info->subscription_url = $subLink;
-        curl_setopt($curl, CURLOPT_URL, $panel_url . $info->subscription_url);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 3); 
-        $response = curl_exec($curl);
-        if($response && !curl_error($curl)){
-            $configInfo = $info;
-            break;
-        }
-		if($i == 10) $configInfo = $info;
-    }
-    curl_close($curl);
-
-    return (object) $configInfo;
-}
-function getMarzbanUser($server_id, $remark, $token = null){
-    global $connection;
-    
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $panel_url = $server_info['panel_url'];
-
-    if($token == null) $token = getMarzbanToken($server_id);
-    if(isset($token->detail)){return (object) ['success'=>false, 'msg'=>$token->detail];}
-    
-    $panel_url .= '/api/user/' . urlencode($remark);
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $panel_url);
-    curl_setopt($curl, CURLOPT_HTTPGET, true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Accept: application/json',
-        'Authorization: Bearer ' . $token->access_token
-    ));
-
-    $response = json_decode(curl_exec($curl));
-    
-    curl_close($curl);
-    return $response;
-}
-function getMarzbanHosts($server_id){
-    global $connection;
-    
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $panel_url = $server_info['panel_url'];
-
-    $token = getMarzbanToken($server_id);
-    if(isset($token->detail)){return (object) ['success'=>false, 'msg'=>$token->detail];}
-
-    $panel_url .= '/api/core/config';
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $panel_url);
-    curl_setopt($curl, CURLOPT_HTTPGET, true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Accept: application/json',
-        'Authorization: Bearer ' . $token->access_token
-    ));
-
-    $response = json_decode(curl_exec($curl));
-    
-    curl_close($curl);
-    return $response;
-}
-function addMarzbanUser($server_id, $remark, $volume, $days, $plan_id){
-    global $connection;
-    
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $panel_url = $server_info['panel_url'];
-    $serverName = $server_info['username'];
-    $serverPass = $server_info['password'];
-    $serverType = $server_info['type'];
-    
-    
-    $stmt = $connection->prepare("SELECT * FROM `server_plans` WHERE `id` = ?");
-    $stmt->bind_param('i', $plan_id);
-    $stmt->execute();
-    $planInfo = json_decode($stmt->get_result()->fetch_assoc()['custom_sni'],true);
-    $stmt->close();
-
-    $token = getMarzbanToken($server_id);
-    if(isset($token->detail)){return (object) ['success'=>false, 'msg'=>$token->detail];}
-    $postFields = array(
-        "inbounds" => $planInfo['inbounds'],
-        "proxies" => $planInfo['proxies'],
-        "expire" => time() + (86400 * $days),
-        "data_limit" => $volume * 1073741824,
-        "username" => urlencode($remark)
-    );
-
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $panel_url . "/api/user");
-    curl_setopt($curl, CURLOPT_POST, true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Accept: application/json',
-        'Authorization: Bearer ' .  $token->access_token,
-        'Content-Type: application/json'
-    ));
-    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($postFields));
-
-    $response = json_decode(curl_exec($curl));
-    curl_close($curl);
-    if(isset($response->detail) || !isset($response->links)){
-		$detail = $response->detail;
-        return (object) ['success'=>false, 'msg' => is_object($detail)?implode("-", (array) $detail):$detail];
-    }
-    $userInfo = getMarzbanUserInfo($server_id, $remark);
-
-    return (object) [
-        'success'=>true,
-        'sub_link'=> $userInfo->subscription_url,
-        'vray_links' => $response->links
-        ];
-}
-function editMarzbanConfig($server_id,$info){
-    global $connection;
-    
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $panel_url = $server_info['panel_url'];
-    $serverName = $server_info['username'];
-    $serverPass = $server_info['password'];
-
-    $token = getMarzbanToken($server_id);
-    if(isset($token->detail)){return (object) ['success'=>false, 'msg'=>$token->error];}
-
-    $remark = $info['remark'];
-    $configInfo = getMarzbanUser($server_id, $remark, $token);
-    
-    
-    $expireTime = $configInfo->expire;
-    $volume = $configInfo->data_limit;
-    
-    if(isset($info['plus_day'])) $expireTime += (86400 * $info['plus_day']);
-    elseif(isset($info['days'])) $expireTime = time() + (86400 * $info['days']);
-    
-    if(isset($info['plus_volume'])) $volume += $info['plus_volume'] * 1073741824;
-    elseif(isset($info['volume'])){
-        $volume = $info['volume'] * 1073741824;
-        $response = resetMarzbanTraffic($server_id, $remark, $token);
-        
-        if(!$response->success) return $response;
-    }
-    
-    $postFields = array(
-        "inbounds" => $configInfo->inbounds,
-        "proxies" => $configInfo->proxies,
-        "expire" => $expireTime,
-        "data_limit" => $volume,
-        "username" => urlencode($remark),
-        "note" => $configInfo->note,
-        "data_limit_reset_strategy"=> $configInfo->data_limit_reset_strategy,
-        "status" => $configInfo->status
-    );
-    
-    $panel_url .=  '/api/user/'. $remark;
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $panel_url);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
-    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($postFields));
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Accept: application/json',
-        'Authorization: Bearer ' .  $token->access_token,
-        'Content-Type: application/json'
-        ));
-    
-    $response = curl_exec($curl);
-    curl_close($curl);
-    if(isset($response->detail)){
-		$detail = $response->detail;
-        return (object) ['success'=>false, 'msg' => is_object($detail)?implode("-", (array) $detail):$detail];
-    }
-    return (object) ['success'=>true];
-}
-function resetMarzbanTraffic($server_id, $remark, $token){
-    global $connection;
-    
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $panel_url = $server_info['panel_url'];
-    $serverName = $server_info['username'];
-    $serverPass = $server_info['password'];
-
-    if($token == null) $token = getMarzbanToken($server_id);
-    if(isset($token->detail)){return (object) ['success'=>false, 'msg'=>$token->detail];}
-
-    $panel_url .=  '/api/user/' . $remark .'/reset';
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $panel_url);
-    curl_setopt($curl, CURLOPT_POST , true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Accept: application/json',
-        'Authorization: Bearer ' .  $token->access_token
-    ));
-
-    $response = curl_exec($curl);
-    curl_close($curl);
-    if(isset($response->detail)){
-		$detail = $response->detail;
-        return (object) ['success'=>false, 'msg' => is_object($detail)?implode("-", (array) $detail):$detail];
-    }
-    return (object) ['success'=>true];
-}
-function renewMarzbanUUID($server_id,$remark){
-    global $connection;
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $panel_url = $server_info['panel_url'];
-    $token = getMarzbanToken($server_id);
-    if(isset($token->detail)){return (object) ['success'=>false, 'msg'=>$token->detail];}
-    $panel_url .= '/api/user/' . $remark .'/revoke_sub';
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $panel_url);
-    curl_setopt($curl, CURLOPT_POST , true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Accept: application/json',
-        'Authorization: Bearer ' .  $token->access_token
-    ));
-
-    $response = json_decode(curl_exec($curl));
-    curl_close($curl);
-    if(isset($response->detail)){
-		$detail = $response->detail;
-        return (object) ['success'=>false, 'msg' => is_object($detail)?implode("-", (array) $detail):$detail];
-    }
-    $response = getMarzbanUserInfo($server_id, $remark);
-    return $response;
-}
-
-function deleteMarzban($server_id,$remark){
-    global $connection;
-    
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $panel_url = $server_info['panel_url'];
-    $serverName = $server_info['username'];
-    $serverPass = $server_info['password'];
-    $serverType = $server_info['type'];
-    
-    $token = getMarzbanToken($server_id);
-    if(isset($token->detail)){return (object) ['success'=>false, 'msg'=>$token->detail];}
-    $panel_url .=  '/api/user/'. urlencode($remark);
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $panel_url);
-    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
-    curl_setopt($curl, CURLOPT_HTTPGET, true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Accept: application/json',
-        'Authorization: Bearer ' .  $token->access_token
-    ));
-
-    $response = json_decode(curl_exec($curl));
-    curl_close($curl);
-    
-    if(isset($response->detail)){
-		$detail = $response->detail;
-        return (object) ['success'=>false, 'msg' => is_object($detail)?implode("-", (array) $detail):$detail];
-    }
-    
-    return (object) ['success'=>true];
-}
-function changeMarzbanState($server_id,$remark){
-    global $connection;
-    
-    $stmt = $connection->prepare("SELECT * FROM server_config WHERE id=?");
-    $stmt->bind_param("i", $server_id);
-    $stmt->execute();
-    $server_info = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    $panel_url = $server_info['panel_url'];
-    $serverName = $server_info['username'];
-    $serverPass = $server_info['password'];
-    $serverType = $server_info['type'];
-    
-    $token = getMarzbanToken($server_id);
-    if(isset($token->detail)){return (object) ['success'=>false, 'msg'=>$token->detail];}
-    $configInfo = getMarzbanUser($server_id, $remark, $token);
-
-    $panel_url .=  '/api/user/'. $remark;
-
-    $postFields = array(
-        "inbounds" => $configInfo->inbounds,
-        "proxies" => $configInfo->proxies,
-        "expire" => $configInfo->expire,
-        "data_limit" => $configInfo->data_limit,
-        "username" => urlencode($remark),
-        "note" => $configInfo->note,
-        "data_limit_reset_strategy"=> $configInfo->data_limit_reset_strategy,
-        "status" => $configInfo->status == "active"?"disabled":"active"
-    );
-
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $panel_url);
-    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Accept: application/json',
-        'Authorization: Bearer ' .  $token->access_token,
-        'Content-Type: application/json'
-    ));
-    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($postFields));
-
-    $response = json_decode(curl_exec($curl));
-    curl_close($curl);
-
-    if(isset($response->detail)){
-		$detail = $response->detail;
-        return (object) ['success'=>false, 'msg' => is_object($detail)?implode("-", (array) $detail):$detail];
-    }
-    return (object) ['success'=>true];
 }
 function getJson($server_id){
     global $connection;
