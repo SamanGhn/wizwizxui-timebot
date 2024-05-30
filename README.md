@@ -93,6 +93,11 @@ bash <(curl -Ls https://raw.githubusercontent.com/alireza0/x-ui/master/install.s
 bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
 ````
 
+<br>
+
+<hr>
+
+<br>
 
 # Features
 
@@ -158,5 +163,10 @@ bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
 - Receipt confirmation by group admins (To be easier for owner)
 - Renew service with the ability to change plan
 
+<br>
+
+<hr>
+
+<br>
 
 # Project Tutorial
