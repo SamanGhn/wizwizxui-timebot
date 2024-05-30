@@ -18,7 +18,7 @@
 
 </p>
 
-<h1 align="center"/>Welcome to wizwiz(edition)</h1>
+<h1 align="center"/>Welcome to WizWiz (Edition)</h1>
 
 <p align="center">
 Easy to sell with <a href="https://github.com/wizwizdev/wizwizxui-timebot">wizwizxui-timebot</a> easy install with few clicks
