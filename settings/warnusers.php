@@ -74,7 +74,7 @@ if($orders){
                     $msg = "💡 کاربر گرامی، 
         از سرویس اشتراک $remark تنها (۱ $send) باقی مانده است. میتواند از قسمت خرید های من سرویس فعلی خود را تمدید کنید یا سرویس جدید خریداری کنید.";
                     sendMessage( $msg, null, null, $from_id);
-                    $newTIme = $time + 86400 * 2;
+                    $newTIme = $time + 86400 * 5;
                     $stmt = $connection->prepare("UPDATE `orders_list` SET `notif`= ? WHERE `uuid`=?");
                     $stmt->bind_param("is", $newTIme, $uuid);
                     $stmt->execute();
