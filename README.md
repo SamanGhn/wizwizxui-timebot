@@ -175,19 +175,6 @@ bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
 - Notification of purchase information + renewal etc. in full to the admin robot
 
 
-<br>
-<hr>
-<br>
-
-Be sure to join the group and channel and support us
-
-## Contact Developer
-💎 Group: https://t.me/wizwizdev
-💎 Channel: https://t.me/wizwizch
-
-<br>
-<br>
-
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/wizwizdev/wizwizxui-timebot.svg)](https://starchart.cc/wizwizdev/wizwizxui-timebot)
