@@ -254,7 +254,7 @@ if($payType == "BUY_SUB"){
         $stmt->execute();
         $stmt->close();
         sendMessage("✅ مبلغ " . number_format($amount). " تومان به حساب شما اضافه شد",null,null,$user_id);
-        sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، ظرفیت پر بود",null,null,$admin);                
+        sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، ظرفیت پر بود",null,null,AdminsGP_id());                
 
         exit;
     }
@@ -273,7 +273,7 @@ if($payType == "BUY_SUB"){
             $stmt->execute();
             $stmt->close();
             sendMessage("✅ مبلغ " . number_format($amount). " تومان به حساب شما اضافه شد",null,null,$user_id);
-            sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، ظرفیت پر بود",null,null,$admin);                
+            sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، ظرفیت پر بود",null,null,AdminsGP_id());                
             exit;
         }
     }
@@ -349,7 +349,7 @@ if($payType == "BUY_SUB"){
             $stmt->execute();
             $stmt->close();
             sendMessage("✅ مبلغ " . number_format($amount). " تومان به حساب شما اضافه شد",null,null,$user_id);
-            sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، اتصال به سرور برقرار نبود",null,null,$admin);                
+            sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، اتصال به سرور برقرار نبود",null,null,AdminsGP_id());                
     
             exit;
         }
@@ -361,7 +361,7 @@ if($payType == "BUY_SUB"){
             $stmt->execute();
             $stmt->close();
             sendMessage("✅ مبلغ " . number_format($amount). " تومان به حساب شما اضافه شد",null,null,$user_id);
-            sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، ولی انباند پیدا نشد",null,null,$admin);                
+            sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، ولی انباند پیدا نشد",null,null,AdminsGP_id());                
     
     		exit;
     	}
@@ -373,7 +373,7 @@ if($payType == "BUY_SUB"){
             $stmt->execute();
             $stmt->close();
             sendMessage("✅ مبلغ " . number_format($amount). " تومان به حساب شما اضافه شد",null,null,$user_id);
-            sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، ولی خطا داد",null,null,$admin);                
+            sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد میخواست کانفیگ بخره، ولی خطا داد",null,null,AdminsGP_id());                
             exit;
         }
     
@@ -491,7 +491,7 @@ sendMessage("
 🔋حجم سرویس: $volume گیگ
 ⏰ مدت سرویس: $days روز
 ⁮⁮ 
-",$keys,"html", $admin);
+",$keys,"html", AdminsGP_id());
 }
 elseif($payType == "INCREASE_WALLET"){
     $stmt = $connection->prepare("UPDATE `users` SET `wallet` = `wallet` + ? WHERE `userid` = ?");
@@ -500,7 +500,7 @@ elseif($payType == "INCREASE_WALLET"){
     $stmt->close(); 
     showForm("پرداخت شما با موفقیت انجام شد، مبلغ ". number_format($amount) . " تومان به کیف پول شما اضافه شد",$payDescription, true);
     sendMessage("✅ مبلغ " . number_format($amount). " تومان به حساب شما اضافه شد",null,null,$user_id);
-    sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد",null,null,$admin);                
+    sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id توسط درگاه اضافه شد",null,null,AdminsGP_id());                
 }
 elseif($payType == "RENEW_ACCOUNT"){
     $oid = $plan_id;
@@ -539,7 +539,7 @@ elseif($payType == "RENEW_ACCOUNT"){
         $stmt->execute();
         $stmt->close();
         sendMessage("✅ مبلغ " . number_format($amount). " تومان به حساب شما اضافه شد",null,null,$user_id);
-        sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id اضافه شد، میخواست کانفیگش رو تمدید کنه، ولی اتصال به سرور برقرار نبود",null,null,$admin);
+        sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id اضافه شد، میخواست کانفیگش رو تمدید کنه، ولی اتصال به سرور برقرار نبود",null,null,AdminsGP_id());
 		exit;
 	}
 	$stmt = $connection->prepare("UPDATE `orders_list` SET `expire_date` = ?, `notif` = 0 WHERE `id` = ?");
@@ -572,7 +572,7 @@ sendMessage("
 💰مبلغ پرداختی: $amount تومان
 🔮 نام سرویس: $remark
 ⁮⁮ ⁮⁮
-",$keys,"html", $admin);
+",$keys,"html", AdminsGP_id());
 exit;
 
 }
@@ -637,7 +637,7 @@ sendMessage("
 💰مبلغ پرداختی: $amount تومان
 🔮 نام سرویس: $remark
 ⁮⁮ ⁮⁮
-",$keys,"html", $admin);
+",$keys,"html", AdminsGP_id());
 exit;
     }else {
         showForm("پرداخت شما با موفقیت انجام شد ولی به دلیل مشکل فنی امکان افزایش حجم نیست. لطفا به مدیریت اطلاع بدید یا 5دقیقه دیگر دوباره تست کنید مبلغ " . number_format($amount) . " تومان به کیف پول شما اضافه شد", $payDescription, true);
@@ -646,7 +646,7 @@ exit;
         $stmt->execute();
         $stmt->close();
         sendMessage("✅ مبلغ " . number_format($amount). " تومان به حساب شما اضافه شد",null,null,$user_id);
-        sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id اضافه شد، میخواست زمان سرویسشو افزایش بده",null,null,$admin);
+        sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id اضافه شد، میخواست زمان سرویسشو افزایش بده",null,null,AdminsGP_id());
         exit;
     }
 }
@@ -703,7 +703,7 @@ sendMessage("
 💰مبلغ پرداختی: $amount تومان
 🔮 نام سرویس: $remark
 ⁮⁮ ⁮⁮
-",$keys,"html", $admin);
+",$keys,"html", AdminsGP_id());
 exit;
     }else {
         showForm("پرداخت شما با موفقیت انجام شد ولی مشکل فنی در ارتباط با سرور. لطفا سلامت سرور را بررسی کنید مبلغ " . number_format($amount) . " تومان به کیف پول شما اضافه شد",$payDescription, true);
@@ -713,7 +713,7 @@ exit;
         $stmt->execute();
         $stmt->close();
         sendMessage("✅ مبلغ " . number_format($amount). " تومان به حساب شما اضافه شد",null,null,$user_id);
-        sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id اضافه شد، میخواست حجم کانفیگشو افزایش بده",null,null,$admin);                
+        sendMessage("✅ مبلغ " . number_format($amount) . " تومان به کیف پول کاربر $user_id اضافه شد، میخواست حجم کانفیگشو افزایش بده",null,null,AdminsGP_id());                
 
         exit;
     }
