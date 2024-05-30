@@ -153,4 +153,10 @@ bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
 
 # Dedicated features
 
-- Card to card
+- Card by card by 4 card numbers (Random Display)
+- Sending customer receipts within the group
+- Receipt confirmation by group admins (To be easier for owner)
+- Renew service with the ability to change plan
+
+
+# Project Tutorial
