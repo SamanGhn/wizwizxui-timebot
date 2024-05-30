@@ -156,7 +156,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
 - Off/on capability (all robot features)
 - Notification of purchase information + renewal etc. in full to the admin robot
 
-# Dedicated Features
+# Special Features
 
 - Card by card by 4 card numbers (Random Display)
 - Sending customer receipts within the group
